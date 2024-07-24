@@ -1,0 +1,61 @@
+# Overall Disease Burden
+
+```{r, echo=FALSE, results='hide', include=FALSE}
+# Load necessary packages
+pacman::p_load(tidyverse, knitr, here)
+
+# Import the overall disease data
+data_overall <- read_csv(here("data/burden-of-disease-all-causes.csv"))
+```
+
+```{r}
+# Filter the dataset to include only the three countries chosen by your group.
+data_overall_mini <- data_overall%>% 
+  filter(Entity %in% c("Malawi", "Mozambique", "Zimbabwe")) %>% 
+  rename(DALYs = `DALYs (Disability-Adjusted Life Years) - All causes - Sex: Both - Age: Age-standardized (Rate)`)
+
+# View the first few rows of the filtered data
+head(data_overall_mini)
+```
+
+## Table of Estimates for Overall Disease Burden Over Time
+
+```{r}
+# Here render a table for the DALY burden over time for the three countries. 
+# You should pivot the data wider to show each country in a separate column.
+data_overall_wide <- data_overall_mini %>%
+  pivot_wider(names_from = Entity, values_from = DALYs)
+
+# # View the first few rows of the pivoted data
+# head(data_cmnn_wide)
+
+# Use kable() from the knitr package to render the table.
+kable(data_overall_wide)
+```
+
+## Plot Showing Trends in Overall Disease Burden Over Time
+
+```{r}
+# Here, plot a line graph showing the trend of DALY burden for the chosen countries over time. You can use ggplot2 to create this plot. Each country's line should be a different color.
+# NOTE: Use your long 'mini' data frame for plotting, not the wide data used for the table.
+wider_data_long <- data_overall_wide %>%
+  pivot_longer(cols = starts_with("Malawi"):starts_with("Zimbabwe"), names_to = "Entity", values_to = "DALYs")
+
+# Plot trends over time
+wider_data_long <- wider_data_long %>% 
+  filter(!is.na(DALYs)) %>% 
+  rename(Country=Entity)
+
+ggplot(wider_data_long, aes(x = Year, y = DALYs, color = Country)) +
+  geom_line(size = 1.5) +  # Increase line thickness
+  scale_x_continuous(breaks = seq(1990, 2019, by = 4)) + # Set x-axis breaks to every 5 years
+  labs(title = "Trends in Overall Disease DALYs between 1990 and 2019",
+       x = "Year",
+       y = "Total DALYs",
+       color = "Country") +
+  theme_minimal()
+```
+
+## Summary of Overall Disease Burden Findings
+
+Between 1990 and 2019, Malawi and Mozambique had declining overall disease DALYs. The overall disease DALYs for Mozambique increased over time between 1990 and 2004, and later dropped over time.After 2010, Malawi had the least DALYs while Mozambique had the highest DALYs.

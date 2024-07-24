@@ -1,0 +1,62 @@
+# Communicable, Maternal, Neonatal, and Nutritional Disease Burden (CMNN)
+
+```{r}
+# Load necessary packages
+pacman::p_load(tidyverse, knitr, here)
+
+# Import the communicable diseases data
+data_cmnn <- read_csv(here("data/burden-of-disease-cmnn.csv"))
+```
+
+```{r}
+# Filter the dataset to include only the three countries chosen by your group: Malawi, Mozambique and Zimbabwe.
+data_cmnn_mini <- data_cmnn %>% 
+  filter(Entity %in% c("Malawi", "Mozambique", "Zimbabwe")) %>% 
+  rename(DALYs = `DALYs (Disability-Adjusted Life Years) - Communicable, maternal, neonatal, and nutritional diseases - Sex: Both - Age: Age-standardized (Rate)`)
+
+# View the first few rows of the filtered data
+head(data_cmnn_mini)
+```
+
+## Table of Estimates for CMNN Burden Over Time
+
+```{r}
+# Here render a table for the DALY burden over time for the three countries.
+# You should pivot the data wider to show each country in a separate column.
+data_cmnn_wide <- data_cmnn_mini %>%
+  pivot_wider(names_from = Entity, values_from = DALYs)
+
+# # View the first few rows of the pivoted data
+# head(data_cmnn_wide)
+
+# Use kable() from the knitr package to render the table.
+kable(data_cmnn_wide)
+```
+
+## Plot Showing Trends in CMNN Burden Over Time
+
+```{r}
+# Here, plot a line graph showing the trend of DALY burden for the chosen countries over time. You can use ggplot2 to create this plot. Each country's line should be a different color.
+# NOTE: Use your long 'mini' data frame for plotting, not the wide data used for the table. 
+# Convert the data back to long format for plotting
+wider_data_long <- data_cmnn_wide %>%
+  pivot_longer(cols = starts_with("Malawi"):starts_with("Zimbabwe"), names_to = "Entity", values_to = "DALYs")
+
+# Plot trends over time
+wider_data_long <- wider_data_long %>% 
+  filter(!is.na(DALYs)) %>% 
+  rename(Country=Entity)
+
+ggplot(wider_data_long, aes(x = Year, y = DALYs, color = Country)) +
+  geom_line(size = 1.5) +  # Increase line thickness
+  scale_x_continuous(breaks = seq(1990, 2019, by = 4)) + # Set x-axis breaks to every 5 years
+  labs(title = "Trends in CMNN DALYs between 1990 and 2019",
+       x = "Year",
+       y = "Total DALYs",
+       color = "Country") +
+  theme_minimal()
+```
+
+## Summary of CMNN Burden Findings
+
+The DALYs for Malawi and Mozambique were dropping over time between 1990 and 2019. The DALYs for Zimbabwe increased between 190 and 2004 and later started dropping between 2004 and 2019. After 2010, Malawi had the least DALYs while Mozambique had the highest DALYs.
