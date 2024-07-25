@@ -1,0 +1,31 @@
+---
+title: "Untitled"
+author: "Wingston Ng'ambi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Tabbed Example ggplot {.tabset}
+
+```{r}
+library(ggplot2)
+
+template <- c(
+    "### {{nm}}\n",
+    "```{r, echo = FALSE}\n",
+    "ggplot(iris[iris$Species == '{{nm}}', ], aes(x = Sepal.Length, y = Sepal.Width)) + geom_point()\n",
+    "```\n",
+    "\n"
+  )
+
+plots <- lapply(
+  unique(iris$Species), 
+  function(nm) knitr::knit_expand(text = template)
+)
+```
+
+`r knitr::knit(text = unlist(plots))`

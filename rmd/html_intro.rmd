@@ -1,0 +1,30 @@
+---
+title: "html_intro"
+author: "Wingston Ng'ambi"
+output: html_document
+---
+
+# What makes HTML reports so great? {.tabset}
+```{r setup, include=T}
+knitr::opts_chunk$set(echo = F)
+if(!require(pacman)) install.packages("pacman")
+library(pacman)
+p_load(reactable, plotly,tidyverse)
+
+```
+
+
+## Interactivity using reactable 
+```{r}
+reactable(infert)
+```
+## Interactive plots using plotly 
+```{r}
+education_plot <- ggplot(infert,aes(x=education,fill=education)) +
+         geom_bar()
+ggplotly(education_plot)
+       
+```
+
+## {-}
+
